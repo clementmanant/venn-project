@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 import α from "color-alpha";
 
-function Avatar({ color, label }) {
-  const styles = createStyles({ color });
+const SIZE = 48;
+function Avatar({ color = "#000", label, size = SIZE }) {
+  const styles = createStyles({ color, size });
   return (
     <View style={styles.root}>
       <Text style={styles.label}>{label}</Text>
@@ -12,23 +13,21 @@ function Avatar({ color, label }) {
 
 export default Avatar;
 
-const SIZE = 96;
-
-const createStyles = ({ color }) =>
+const createStyles = ({ color, size }) =>
   StyleSheet.create({
     root: {
-      height: SIZE,
-      width: SIZE,
+      height: size,
+      width: size,
       backgroundColor: α(color, 0.1),
       borderColor: color,
       borderWidth: 4,
       borderStyle: "solid",
-      borderRadius: SIZE / 2,
+      borderRadius: Math.round(SIZE / 2),
       justifyContent: "center",
       alignItems: "center",
     },
     label: {
-      fontSize: 32,
+      fontSize: Math.round(size / 3),
       fontWeight: "700",
       color,
     },

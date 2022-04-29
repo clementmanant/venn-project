@@ -1,4 +1,5 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useCallback } from "react";
+import { collection, addDoc } from "firebase/firestore";
 import {
   Dimensions,
   Image,
@@ -11,25 +12,41 @@ import {
 import app from "../../app.json";
 import ColorContext from "../ColorContext";
 import Button from "../components/Button";
-import Greetings from "../components/Greetings";
 import useGetAll from "../hooks/useGetAll";
+import { db } from "../firebase";
 
-function Identification({ navigation }) {
+function CreateMember({ navigation }) {
   const { data } = useGetAll("members");
   const [, setColor] = useContext(ColorContext);
-  const [value, setValue] = useState("");
+  const [newFirstname, setFirstname] = useState("");
+  const [newLastname, setLastname] = useState("");
+  const [color, setFavColor] = useState("");
   const [member, setMember] = useState(null);
   const [error, setError] = useState(false);
   const styles = createStyles({
     error,
     member: Boolean(member),
   });
-  const onChange = (text) => {
-    setError(false);
-    setMember(null);
-    setValue(text);
+
+  const header = (
+    <View style={styles.header}>
+      <Text style={styles.title}>{app.expo.name}</Text>
+      <Image source={require("../../assets/icon.png")} style={styles.logo} />
+    </View>
+  );
+
+  const onChangeFirstname = (firstnameChange) => {
+    setFirstname(firstnameChange);
   };
-  const onPress = () => {
+  const onChangeLastname = (lastnameChange) => {
+    setLastname(lastnameChange);
+  };
+  const onChangeColor = (colorChange) => {
+    setFavColor(colorChange);
+  };
+
+  const Create = () => {
+    const value = newFirstname + " " + newLastname;
     if (value.length > 0 && data?.length > 0) {
       const found = data.find(({ lastname, firstname }) =>
         value.match(
@@ -39,81 +56,57 @@ function Identification({ navigation }) {
           )
         )
       );
-      setMember(found);
-      setError(!found);
-      if (found) {
-        setColor(found.favoriteColor);
+      if (!found) {
+        var docRef = addDoc(collection(db, "members"), {
+          firstname: newFirstname.trim(),
+          lastname: newLastname.trim(),
+          favoriteColor: color.toLowerCase().trim(),
+        });
+      } else {
+        // Actualiser BDD + Message d'erreur ou de succès
+        console.log("Utilisateur existant");
       }
     }
   };
-  const onNavigateToHome = () => {
-    navigation.navigate("Accueil");
+
+  const Login = () => {
+    navigation.navigate("Identification");
   };
-  const CreateMember = () => {
-    navigation.navigate("CreateMember");
-  };
-  const header = (
-    <View style={styles.header}>
-      <Text style={styles.title}>{app.expo.name}</Text>
-      <Image source={require("../../assets/icon.png")} style={styles.logo} />
-    </View>
-  );
-  if (member) {
-    return (
-      <View style={styles.root}>
-        {header}
-        <View style={styles.content}>
-          <Greetings {...member} />
-          <View style={styles.actions}>
-            <Button title="Aller à l'accueil" onPress={onNavigateToHome} />
-          </View>
-        </View>
-      </View>
-    );
-  }
-  if (error) {
-    return (
-      <View style={styles.root}>
-        {header}
-        <View style={styles.content}>
-          <View>
-            <TextInput
-              placeholder="Identifiant"
-              style={styles.input}
-              value={value}
-              onChangeText={onChange}
-            />
-            <Text style={styles.error}>Désolé, tu n'es pas enregistré·e.</Text>
-          </View>
-          <View style={styles.actions}>
-            <Button title="S'enregistrer" onPress={CreateMember} />
-          </View>
-        </View>
-      </View>
-    );
-  }
+
   return (
     <View style={styles.root}>
       {header}
       <View style={styles.content}>
         <TextInput
-          placeholder="Identifiant"
+          placeholder="firstname"
           style={styles.input}
-          value={value}
-          onChangeText={onChange}
+          value={newFirstname}
+          onChangeText={onChangeFirstname}
+        />
+        <TextInput
+          placeholder="lastname"
+          style={styles.input}
+          value={newLastname}
+          onChangeText={onChangeLastname}
+        />
+        <TextInput
+          placeholder="favoriteColor"
+          style={styles.input}
+          value={color}
+          onChangeText={onChangeColor}
         />
         <View style={styles.actions}>
-          <Button title="S'identifier" onPress={onPress} />
+          <Button title="Créer l'utilisateur" onPress={Create} />
         </View>
         <View style={styles.actions}>
-          <Button title="S'enregistrer" onPress={CreateMember} />
+          <Button title="S'identifier" onPress={Login} />
         </View>
       </View>
     </View>
   );
 }
 
-export default Identification;
+export default CreateMember;
 
 const createStyles = ({ error, member }) =>
   StyleSheet.create({
