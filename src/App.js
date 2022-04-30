@@ -7,6 +7,7 @@ import Identification from "./screens/Identification";
 import Home from "./screens/Home";
 import ColorContext from "./ColorContext";
 import CreateMember from "./screens/CreateMember";
+import CreateProject from "./screens/CreateProject";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ export default function App() {
           <Stack.Screen name="Identification" component={Identification} />
           <Stack.Screen name="Accueil" component={Home} />
           <Stack.Screen name="CreateMember" component={CreateMember} />
+          <Stack.Screen name="CreateProject" component={CreateProject} />
         </Stack.Navigator>
       </NavigationContainer>
     </ColorContext.Provider>

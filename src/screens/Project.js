@@ -1,39 +1,11 @@
-import { useMemo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-import Avatar from "../components/Avatar";
-import useGetAll from "../hooks/useGetAll";
-
-function Project({ title, participants = [] }) {
-  const { data } = useGetAll("members");
-  const avatars = useMemo(
-    () =>
-      participants
-        .map((id) => {
-          const participant = data?.find((member) => member.id === id);
-          console.log(data, id, participant);
-          if (participant) {
-            return {
-              id,
-              label: participant.firstname[0],
-              color: participant.favoriteColor,
-            };
-          }
-          return null;
-        })
-        .filter(Boolean),
-    [data, participants]
-  );
+function Project({ title, tag, partenaire }) {
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.avatars}>
-        {avatars.map((avatar) => (
-          <View key={avatar.id} style={styles.avatar}>
-            <Avatar label={avatar.label} color={avatar.color} />
-          </View>
-        ))}
-      </View>
+      <Text style={styles.title}>Projet : {title}</Text>
+      <Text style={styles.title}>Tag : {tag}</Text>
+      <Text style={styles.title}>Avec : {partenaire}</Text>
     </View>
   );
 }
