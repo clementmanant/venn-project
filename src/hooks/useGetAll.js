@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useIsFocused } from "@react-navigation/native";
 
 import { getAll } from "../firebase";
 
@@ -6,6 +7,10 @@ export default function useGetAll(collection) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    getData();
+  }, [getData, isFocused]);
   const getData = useCallback(async () => {
     try {
       const json = await getAll(collection);

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { View, ScrollView, StyleSheet, Text } from "react-native";
 
 import Avatar from "../components/Avatar";

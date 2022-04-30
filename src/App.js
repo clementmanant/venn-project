@@ -11,6 +11,7 @@ import CreateMember from "./screens/CreateMember";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  console.disableYellowBox = true;
   const [color, setColor] = useState(null);
   return (
     <ColorContext.Provider value={[color, setColor]}>

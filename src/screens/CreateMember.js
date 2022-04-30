@@ -1,4 +1,6 @@
-import { useContext, useState, useCallback } from "react";
+import { useState } from "react";
+import * as React from "react";
+import Modal from "react-native-modal";
 import { collection, addDoc } from "firebase/firestore";
 import {
   Dimensions,
@@ -10,30 +12,37 @@ import {
 } from "react-native";
 
 import app from "../../app.json";
-import ColorContext from "../ColorContext";
 import Button from "../components/Button";
 import useGetAll from "../hooks/useGetAll";
 import { db } from "../firebase";
 
 function CreateMember({ navigation }) {
   const { data } = useGetAll("members");
-  const [, setColor] = useContext(ColorContext);
   const [newFirstname, setFirstname] = useState("");
   const [newLastname, setLastname] = useState("");
   const [color, setFavColor] = useState("");
-  const [member, setMember] = useState(null);
-  const [error, setError] = useState(false);
+  const [member] = useState(null);
+  const [error] = useState(false);
   const styles = createStyles({
     error,
     member: Boolean(member),
   });
-
   const header = (
     <View style={styles.header}>
       <Text style={styles.title}>{app.expo.name}</Text>
       <Image source={require("../../assets/icon.png")} style={styles.logo} />
     </View>
   );
+
+  const [isErrorModalVisible, setIsErrorModalVisible] = React.useState(false);
+
+  const errorModal = () => setIsErrorModalVisible(() => !isErrorModalVisible);
+
+  const [isSuccessModalVisible, setIsSuccessModalVisible] =
+    React.useState(false);
+
+  const successModal = () =>
+    setIsSuccessModalVisible(() => !isSuccessModalVisible);
 
   const onChangeFirstname = (firstnameChange) => {
     setFirstname(firstnameChange);
@@ -57,14 +66,14 @@ function CreateMember({ navigation }) {
         )
       );
       if (!found) {
-        var docRef = addDoc(collection(db, "members"), {
+        addDoc(collection(db, "members"), {
           firstname: newFirstname.trim(),
           lastname: newLastname.trim(),
           favoriteColor: color.toLowerCase().trim(),
         });
+        successModal();
       } else {
-        // Actualiser BDD + Message d'erreur ou de succès
-        console.log("Utilisateur existant");
+        errorModal();
       }
     }
   };
@@ -97,6 +106,24 @@ function CreateMember({ navigation }) {
         />
         <View style={styles.actions}>
           <Button title="Créer l'utilisateur" onPress={Create} />
+          <Modal isVisible={isErrorModalVisible}>
+            <View>
+              <Text style={styles.textButtonError}>Utilisateur déjà créé!</Text>
+            </View>
+            <View style={styles.button}>
+              <Button title="Fermer" onPress={errorModal} />
+            </View>
+          </Modal>
+          <Modal isVisible={isSuccessModalVisible}>
+            <View>
+              <Text style={styles.textButtonSuccess}>
+                Utilisateur créé avec succès!
+              </Text>
+            </View>
+            <View style={styles.button}>
+              <Button title="Fermer" onPress={successModal} />
+            </View>
+          </Modal>
         </View>
         <View style={styles.actions}>
           <Button title="S'identifier" onPress={Login} />
@@ -149,5 +176,18 @@ const createStyles = ({ error, member }) =>
     },
     actions: {
       marginVertical: 16,
+    },
+    textButtonError: {
+      color: "red",
+      fontSize: 20,
+      alignSelf: "center",
+    },
+    textButtonSuccess: {
+      color: "green",
+      fontSize: 20,
+      alignSelf: "center",
+    },
+    button: {
+      backgroundColor: "white",
     },
   });
